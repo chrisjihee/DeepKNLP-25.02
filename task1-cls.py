@@ -239,7 +239,9 @@ def val_loop(
     progress = mute_tqdm_cls(bar_size=20, desc_size=8)(range(num_batch), unit=f"x{dataloader.batch_size}b", desc="checking")
     for i, batch in enumerate(dataloader, start=1):
         outputs = model.validation_step(batch, i)
-        # [Complete CODE HERE!]
+        preds.extend(outputs["preds"])
+        labels.extend(outputs["labels"])
+        losses.append(outputs["loss"])
         progress.update()
         if i < num_batch and i % print_interval < 1:
             fabric.print(f"(Ep {model.args.prog.global_epoch:4.2f}) {progress}")
