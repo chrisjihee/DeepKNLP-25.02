@@ -146,7 +146,7 @@ class NSMCModel(LightningModule):
             return_tensors="pt",
         )
         outputs: SequenceClassifierOutput = self.lang_model(**inputs)
-        # [Complete CODE HERE!]
+        prob = outputs.logits.softmax(dim=1)
         pred = "긍정 (positive)" if torch.argmax(prob) == 1 else "부정 (negative)"
         positive_prob = round(prob[0][1].item(), 4)
         negative_prob = round(prob[0][0].item(), 4)
@@ -281,7 +281,9 @@ def test_loop(
     progress = mute_tqdm_cls(bar_size=20, desc_size=8)(range(num_batch), unit=f"x{dataloader.batch_size}b", desc="testing")
     for i, batch in enumerate(dataloader, start=1):
         outputs = model.test_step(batch, i)
-        # [Complete CODE HERE!]
+        preds.extend(outputs["preds"])
+        labels.extend(outputs["labels"])
+        losses.append(outputs["loss"])
         progress.update()
         if i < num_batch and i % print_interval < 1:
             fabric.print(f"(Ep {model.args.prog.global_epoch:4.2f}) {progress}")
