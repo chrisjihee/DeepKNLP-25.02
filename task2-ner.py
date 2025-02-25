@@ -225,7 +225,10 @@ class NERModel(LightningModule):
             return_tensors="pt",
         )
         outputs: TokenClassifierOutput = self.lang_model(**inputs)
-        # [Complete CODE HERE!]
+        all_probs: Tensor = outputs.logits[0].softmax(dim=1)
+        top_probs, top_preds = torch.topk(all_probs, dim=1, k=1)
+        tokens = self.lm_tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
+        top_labels = [self.id_to_label(pred[0].item()) for pred in top_preds]
         result = []
         for token, label, top_prob in zip(tokens, top_labels, top_probs):
             if token in self.lm_tokenizer.all_special_tokens:
