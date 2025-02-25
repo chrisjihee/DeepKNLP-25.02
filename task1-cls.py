@@ -90,7 +90,11 @@ class NSMCModel(LightningModule):
     def val_dataloader(self):
         self.fabric.print = logger.info if self.fabric.local_rank == 0 else logger.debug
         val_dataset = ClassificationDataset("valid", data=self.data, tokenizer=self.lm_tokenizer)
-        # [Complete CODE HERE!]
+        val_dataloader = DataLoader(val_dataset, sampler=SequentialSampler(val_dataset),
+                                      num_workers=self.args.hardware.cpu_workers,
+                                      batch_size=self.args.hardware.infer_batch,
+                                      collate_fn=data_collator,
+                                      drop_last=False)
         self.fabric.print(f"Created val_dataset providing {len(val_dataset)} examples")
         self.fabric.print(f"Created val_dataloader providing {len(val_dataloader)} batches")
         return val_dataloader
@@ -98,14 +102,19 @@ class NSMCModel(LightningModule):
     def test_dataloader(self):
         self.fabric.print = logger.info if self.fabric.local_rank == 0 else logger.debug
         test_dataset = ClassificationDataset("test", data=self.data, tokenizer=self.lm_tokenizer)
-        # [Complete CODE HERE!]
+        test_dataloader = DataLoader(val_dataset, sampler=SequentialSampler(val_dataset),
+                                    num_workers=self.args.hardware.cpu_workers,
+                                    batch_size=self.args.hardware.infer_batch,
+                                    collate_fn=data_collator,
+                                    drop_last=False)
         self.fabric.print(f"Created test_dataset providing {len(test_dataset)} examples")
         self.fabric.print(f"Created test_dataloader providing {len(test_dataloader)} batches")
         return test_dataloader
 
     def training_step(self, inputs, batch_idx):
         outputs: SequenceClassifierOutput = self.lang_model(**inputs)
-        # [Complete CODE HERE!]
+        labels: torch.Tensor = inputs["labels"]
+        preds: torch.Tensor = outputs.logits.argmax(dim=-1)
         acc: torch.Tensor = accuracy(preds=preds, labels=labels)
         return {
             "loss": outputs.loss,
@@ -115,7 +124,8 @@ class NSMCModel(LightningModule):
     @torch.no_grad()
     def validation_step(self, inputs, batch_idx):
         outputs: SequenceClassifierOutput = self.lang_model(**inputs)
-        # [Complete CODE HERE!]
+        labels: List[int] = inputs["labels"].tolist()
+        preds: List[int] = outputs.logits.argmax(dim=-1).tolist()
         return {
             "loss": outputs.loss,
             "preds": preds,
@@ -189,7 +199,8 @@ def train_loop(
             model.args.prog.global_step += 1
             model.args.prog.global_epoch = model.args.prog.global_step / num_batch
             optimizer.zero_grad()
-            # [Complete CODE HERE!]
+            outputs = model.training_step(batch, i)
+            fabric.backward(outputs["loss"])
             optimizer.step()
             progress.update()
             fabric.barrier()
