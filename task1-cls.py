@@ -102,7 +102,7 @@ class NSMCModel(LightningModule):
     def test_dataloader(self):
         self.fabric.print = logger.info if self.fabric.local_rank == 0 else logger.debug
         test_dataset = ClassificationDataset("test", data=self.data, tokenizer=self.lm_tokenizer)
-        test_dataloader = DataLoader(val_dataset, sampler=SequentialSampler(val_dataset),
+        test_dataloader = DataLoader(test_dataset, sampler=SequentialSampler(test_dataset),
                                     num_workers=self.args.hardware.cpu_workers,
                                     batch_size=self.args.hardware.infer_batch,
                                     collate_fn=data_collator,
