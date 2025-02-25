@@ -1,0 +1,23 @@
+# Machine Learning
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch>2.5.0
+lightning
+accelerate
+sentencepiece
+scikit-learn
+torchmetrics
+seqeval
+datasets
+tensorboard
+evaluate
+
+# Utils
+pydantic
+importlib-metadata
+
+# Server
+Flask
+Flask-Classful
+
+# Custom
+chrisbase==0.5.7
