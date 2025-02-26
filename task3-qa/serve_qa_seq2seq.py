@@ -117,10 +117,10 @@ main = typer.Typer()
 @main.command()
 def serve(
         # TODO: "output/korquad/train_qa_seq2seq-*/checkpoint-*", or "paust/pko-t5-base-finetuned-korquad"
-        pretrained: str = typer.Option("output/korquad/train_qa_seq2seq-*/checkpoint-*",
+        pretrained: str = typer.Option("paust/pko-t5-base-finetuned-korquad",
                                        help="Local pretrained model path or Hugging Face Hub ID"),
         server_host: str = typer.Option("0.0.0.0"),
-        server_port: int = typer.Option(9164),
+        server_port: int = typer.Option(8300),
         server_page: str = typer.Option("serve_qa_seq2seq.html", help="HTML template file inside the templates folder"),
         num_beams: int = typer.Option(5, help="Beam search width for text generation"),
         max_length: int = typer.Option(50, help="Maximum answer length"),

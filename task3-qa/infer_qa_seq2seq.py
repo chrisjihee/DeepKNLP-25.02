@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Local pretrained model path or Hugging Face Hub ID
 # TODO: "output/korquad/train_qa_seq2seq-*/checkpoint-*", or "paust/pko-t5-base-finetuned-korquad"
-pretrained = "output/korquad/train_qa_seq2seq-*/checkpoint-*"
+pretrained = "paust/pko-t5-base-finetuned-korquad"
 checkpoint_paths = paths(pretrained)
 if checkpoint_paths and len(checkpoint_paths) > 0:
     pretrained = str(sorted(checkpoint_paths, key=os.path.getmtime)[-1])
